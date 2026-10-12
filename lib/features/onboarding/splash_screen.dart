@@ -41,10 +41,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
           // Restore user session in UserProvider
           context.read<UserProvider>().setUser(
-                userId: userId,
-                name: savedUser['name'] ?? '',
-                email: savedUser['email'] ?? '',
-              );
+            userId: userId,
+            name: savedUser['name'] ?? '',
+            email: savedUser['email'] ?? '',
+          );
 
           // Preload tasks for this user
           await context.read<TaskProvider>().loadTasks(userId.toString());
@@ -64,57 +64,51 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     // Navigate to Login screen if no valid session exists
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
-   return Scaffold(
+    return Scaffold(
       backgroundColor: const Color(0xFF181818),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF15B86C).withOpacity(.5),
-                      Colors.transparent,
-                    ],
-                    center: Alignment.bottomRight,
-                    radius: 1,
-                  ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF15B86C).withValues(alpha: 0.5),
+                    Colors.transparent,
+                  ],
+                  center: Alignment.bottomRight,
+                  radius: 1,
                 ),
               ),
             ),
+          ),
 
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF15B86C).withOpacity(.5),
-                      Colors.transparent,
-                    ],
-                    center: Alignment.topLeft,
-                    radius: 1,
-                  ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF15B86C).withValues(alpha: 0.5),
+                    Colors.transparent,
+                  ],
+                  center: Alignment.topLeft,
+                  radius: 1,
                 ),
               ),
             ),
+          ),
 
-            Center(
-              child: Image.asset(
-                'assets/logo.png',
-                width: 100,
-                height: 100,
-              ),
-            ),
-          ],
-        ),
+          Center(
+            child: Image.asset('assets/logo.png', width: 100, height: 100),
+          ),
+        ],
       ),
     );
   }

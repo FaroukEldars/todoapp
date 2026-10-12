@@ -1,17 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  static String get baseUrl {
-    if (!kIsWeb && Platform.isAndroid) {
-      return 'http://10.0.2.2:5091';
-    }
-    return 'http://localhost:5091';
-  }
+  static const String baseUrl = 'http://tododepiapi.runasp.net/api';
 
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
@@ -21,7 +15,7 @@ class AuthService {
     required String password,
   }) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/Auth/register'),
+      Uri.parse('$baseUrl/Auth/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'fullName': fullName,
@@ -44,7 +38,7 @@ class AuthService {
     required String password,
   }) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/Auth/login'),
+      Uri.parse('$baseUrl/Auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
@@ -87,6 +81,13 @@ class AuthService {
     final token = await getToken();
     if (token == null || token.isEmpty) return null;
 
+    // Check if token is expired
+    if (isTokenExpired(token)) {
+      debugPrint('AuthService: Saved token is expired. Logging out.');
+      await logout();
+      return null;
+    }
+
     final id = await _storage.read(key: 'user_id');
     final name = await _storage.read(key: 'user_name');
     final email = await _storage.read(key: 'user_email');
@@ -99,6 +100,45 @@ class AuthService {
       'name': name ?? '',
       'email': email ?? '',
     };
+  }
+
+  /// Checks if a JWT token has expired based on its 'exp' claim.
+  bool isTokenExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) {
+        return true;
+      }
+
+      final payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
+      final normalized = base64.normalize(payload);
+      final decodedString = utf8.decode(base64.decode(normalized));
+      final payloadMap = jsonDecode(decodedString);
+
+      if (payloadMap is! Map<String, dynamic>) {
+        return true;
+      }
+
+      final exp = payloadMap['exp'];
+      if (exp == null) {
+        return false;
+      }
+
+      final expirySeconds = exp is int ? exp : int.tryParse(exp.toString());
+      if (expirySeconds == null) {
+        return true;
+      }
+
+      final expiryDate = DateTime.fromMillisecondsSinceEpoch(
+        expirySeconds * 1000,
+        isUtc: true,
+      );
+
+      return DateTime.now().toUtc().isAfter(expiryDate);
+    } catch (e) {
+      debugPrint('AuthService: Error parsing token expiry: $e');
+      return true;
+    }
   }
 
   Future<void> logout() async {

@@ -9,8 +9,12 @@
 ## 🏗️ 1. فكرة ومعمارية التطبيق (Application Architecture)
 
 عشان نضمن البساطة والسرعة وسهولة التسليم:
-1. **الـ Backend (ASP.NET Core Web API):**
+1. **الـ Backend (ASP.NET Core Web API — Production):**
    - مسؤول **فقط عن الـ Authentication** (تسجيل الدخول / إنشاء الحساب / جلب الـ Token واسم المستخدم).
+   - **الرابط المرفوع (Production URL):** `http://tododepiapi.runasp.net/api`
+     - Register: `http://tododepiapi.runasp.net/api/Auth/register`
+     - Login: `http://tododepiapi.runasp.net/api/Auth/login`
+   - تم إعداد الـ Android Manifest ليدعم حركة المرور للـ HTTP (`usesCleartextTraffic="true"` و `INTERNET permission`).
    - لا يتم إرسال أو مزامنة أي تاسكات مع السيرفر.
 2. **الـ Local Storage (Hive):**
    - هو المكان الوحيد المسؤول عن **حفظ وإدارة المهام (Tasks)** محلياً على جهاز المستخدم.
@@ -20,9 +24,12 @@
      - `UserProvider`: لمعلومات المستخدم الحالي.
      - `TaskProvider`: لإدارة التاسكات (عرض، إضافة، تعديل، حذف).
      - `ThemeProvider`: لتبديل الثيم بين الفاتح والداكن (Light & Dark).
-4. **الـ Session Persistence & Auto-Login (FlutterSecureStorage):**
+4. **الـ Session Persistence & Auto-Login & JWT Expiry (FlutterSecureStorage):**
    - يتم حفظ الـ `auth_token` وبيانات الحساب (`userId`, `name`, `email`) تلقائياً في التخزين الآمن عند الـ Login.
-   - التطبيق يبدأ من `SplashScreen` لفحص الجلسة تلقائياً: إذا كان المستخدم مسجلاً مسبقاً، يدخل مباشرة على `MainNavigationScreen` وتُحمَّل تاسكاته دون الحاجة لإعادة كتابة الإيميل والباسورد كل مرة.
+   - التطبيق يبدأ من `SplashScreen` لفحص الجلسة تلقائياً:
+     - يتم أولاً **فحص صلاحية الـ Token (`isTokenExpired`)** عبر قراءة حقل الـ `exp` في الـ JWT.
+     - إذا كان التوكن صالحاً وسارياً، يدخل المستخدم مباشرة على `MainNavigationScreen` وتُحمَّل تاسكاته دون الحاجة لإعادة تسجيل الدخول.
+     - إذا انتهت صلاحية التوكن (Expired)، تُمسح الجلسة القديمة تلقائياً ويوجّه لصفحة `LoginScreen` فوراً.
 
 ---
 
@@ -235,11 +242,14 @@ lib/
 * **الملفات الخاصة بك:**
   - `lib/features/profile/profile_screen.dart`
   - `lib/features/profile/user_details_screen.dart`
+* **الوضع الحالي:**
+  - تم بالفعل بناء زر **تسجيل الخروج (Logout)** بشكل متكامل وشغال داخل `profile_screen.dart` مع `AlertDialog` للتأكيد ومسح الجلسة، بالإضافة إلى عرض أولي لاسم المستخدم وإيميله من `UserProvider`.
+  - دورك هو إكمال باقي عناصر وتصميم الصفحة وشاشة تفاصيل المستخدم (`user_details_screen.dart`).
 * **المسؤوليات:**
   1. عرض بيانات المستخدم (الاسم، البريد الإلكتروني، مقولة اليوم، الصورة إن وجدت).
   2. تعديل اسم المستخدم والمقولة.
   3. زر تبديل الثيم (Dark/Light).
-  4. تسجيل الخروج (Logout) والعودة لشاشة الـ Login.
+  4. استكمال باقي تفاصيل الحساب والإعدادات.
 
 * **الكود اللي هتستخدمه:**
   ```dart
@@ -302,3 +312,11 @@ lib/
 
 ---
 
+## 📌 5. ملخص التحديثات الأخيرة (Recent Updates Log)
+
+| العنصر | التحديث والملفات المعنية |
+| :--- | :--- |
+| **سيرفر الإنتاج (Production API)** | تم ربط التطبيق بسيرفر الـ Backend المرفوع: `http://tododepiapi.runasp.net/api` في [auth_service.dart](file:///d:/MyProjects/ToDoDepiProject/todoapp/lib/data/services/auth_service.dart). |
+| **دعم أندرويد لـ HTTP** | تم تفعيل `android:usesCleartextTraffic="true"` وصلاحية `INTERNET` في [AndroidManifest.xml](file:///d:/MyProjects/ToDoDepiProject/todoapp/android/app/src/main/AndroidManifest.xml) لتفادي أخطاء الحظر على Android 9+. |
+| **فحص صلاحية التوكن (JWT Expiry)** | تمت إضافة فحص ذكي `isTokenExpired()` في [auth_service.dart](file:///d:/MyProjects/ToDoDepiProject/todoapp/lib/data/services/auth_service.dart) يمنع الـ Auto-Login إذا كان التوكن منتهي ويحوّل المستخدم فوراً لشاشة تسجيل الدخول. |
+| **زر تسجيل الخروج (Profile Logout)** | تم تجهيز واجهة أولية في [profile_screen.dart](file:///d:/MyProjects/ToDoDepiProject/todoapp/lib/features/profile/profile_screen.dart) تحتوي على زر تسجيل خروج متكامل ينظف الـ Storage والـ Providers ويرجع للـ Login. |
