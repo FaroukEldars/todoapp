@@ -1,160 +1,128 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:provider/provider.dart';
 
-import '../../providers/task_provider.dart';
-import '../../providers/user_provider.dart';
-import '../navigation/main_navigation_screen.dart';
+import '../auth/login_screen.dart';
+import '../auth/register_screen.dart';
 
-class WelcomeScreen extends StatefulWidget {
+class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
-}
-
-class _WelcomeScreenState extends State<WelcomeScreen> {
-  final _nameController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-Future<void> _start() async {
-  final name = _nameController.text.trim();
-
-  if (name.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Please enter your name'),
-      ),
-    );
-    return;
-  }
-
-  try {
-    final box = await Hive.openBox('home_settings');
-    await box.put('userName', name);
-
-    if (!mounted) return;
-
-    final user = context.read<UserProvider>();
-    final tasks = context.read<TaskProvider>();
-
-    user.setUser(
-      name: name,
-      userId: 1,
-      email: '',
-    );
-
-    await tasks.loadTasks('1');
-
-    if (!mounted) return;
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => const MainNavigationScreen(),
-      ),
-    );
-  } catch (e) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Could not start the app. Please try again .'),
-      ),
-    );
-  }
-}
-
-  @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark
+        ? const Color(0xFF181818)
+        : const Color(0xFFF8F9FA);
+    final textColor = isDark ? Colors.white : const Color(0xFF1B1B1B);
+    final subTextColor = isDark
+        ? const Color(0xFFCFCFCF)
+        : const Color(0xFF6E7177);
+    final inactiveTextColor = isDark ? Colors.white60 : const Color(0xFF6E7177);
+
     return Scaffold(
-      backgroundColor: Color(0xFF181818),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Color(0xff181818),
-        title: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/logo.png', width: 40, height: 40),
-              const Text(
-                '  Tasky',
-                style: TextStyle(color: Colors.white, fontSize: 24),
+        backgroundColor: backgroundColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/logo.png', width: 36, height: 36),
+
+            const SizedBox(width: 8),
+            Text(
+              'Tasky',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Welcome To Tasky 👋',
-                  style: TextStyle(color: Colors.white, fontSize: 24),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   'Your productivity journey starts here',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: subTextColor, fontSize: 16),
                 ),
-                const SizedBox(height: 20),
-                Image.asset('assets/onb.png', width: 300, height: 300),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Full Name',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ),
+                const SizedBox(height: 28),
+                Image.asset(
+                  isDark ? 'assets/onbDark.png' : 'assets/onb.png',
+                  width: 280,
+                  height: 280,
+                  fit: BoxFit.contain,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    style: const TextStyle(color: Colors.white),
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      filled: true,
-                      fillColor: Color(0xFF282828),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      ),
-
-                      hintText: 'e.g. John Doe',
-                      hintStyle: TextStyle(color: Colors.white38),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 12.0,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
+                const SizedBox(height: 36),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF15B86C),
-                    minimumSize: const Size(365, 40),
+                    backgroundColor: const Color(0xFF15B86C),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(40.0),
                     ),
+                    elevation: 0,
                   ),
-
-                  onPressed: _start,
-                  child: Text(
-                    'Let\'s Get Started',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                    );
+                  },
+                  child: const Text(
+                    'Get Started',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Already have an account? ',
+                      style: TextStyle(color: inactiveTextColor, fontSize: 14),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Sign In',
+                        style: TextStyle(
+                          color: Color(0xFF15B86C),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
