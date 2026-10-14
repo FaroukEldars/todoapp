@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  static const String baseUrl = 'http://tododepiapi.runasp.net/api';
+  static const String baseUrl = 'https://tododepiapi.runasp.net/api';
 
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
@@ -63,10 +63,16 @@ class AuthService {
         await _storage.write(key: 'user_id', value: user['id'].toString());
       }
       if (user['fullName'] != null) {
-        await _storage.write(key: 'user_name', value: user['fullName'].toString());
+        await _storage.write(
+          key: 'user_name',
+          value: user['fullName'].toString(),
+        );
       }
       if (user['email'] != null) {
-        await _storage.write(key: 'user_email', value: user['email'].toString());
+        await _storage.write(
+          key: 'user_email',
+          value: user['email'].toString(),
+        );
       }
     }
 
@@ -94,12 +100,7 @@ class AuthService {
 
     if (id == null || id.isEmpty) return null;
 
-    return {
-      'token': token,
-      'id': id,
-      'name': name ?? '',
-      'email': email ?? '',
-    };
+    return {'token': token, 'id': id, 'name': name ?? '', 'email': email ?? ''};
   }
 
   /// Checks if a JWT token has expired based on its 'exp' claim.
