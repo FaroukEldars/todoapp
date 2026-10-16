@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../providers/user_provider.dart';
 
 class UserDetailsScreen extends StatefulWidget {
@@ -32,28 +31,36 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     super.dispose();
   }
 
-  void _saveChanges() {
+
+  Future<void> _saveChanges() async {
     if (!_formKey.currentState!.validate()) return;
 
     final newName = _nameController.text.trim();
     final newQuote = _quoteController.text.trim();
 
     final userProvider = context.read<UserProvider>();
-    if (newName.isNotEmpty) {
-      userProvider.updateName(newName);
-    }
-    if (newQuote.isNotEmpty) {
-      userProvider.updateQuote(newQuote);
-    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile details updated successfully!'),
-        backgroundColor: _green,
-      ),
-    );
+    try {
+      await userProvider.updateName(newName);
+      await userProvider.updateQuote(newQuote);
 
-    Navigator.of(context).pop();
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile details updated successfully!'),
+          backgroundColor: _green,
+        ),
+      );
+
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not save profile details: $e')),
+      );
+    }
   }
 
   @override
