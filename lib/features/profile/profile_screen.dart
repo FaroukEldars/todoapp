@@ -1,4 +1,11 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:path_provider/path_provider.dart';
+
+import 'widgets/profile_option_tile.dart';
+import 'widgets/profile_avatar.dart';
+import 'widgets/profile_header.dart';
+import 'widgets/profile_info.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -10,6 +17,7 @@ import '../../providers/theme_provider.dart';
 import '../../providers/user_provider.dart';
 import '../auth/login_screen.dart';
 import 'user_details_screen.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -23,6 +31,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoggingOut = false;
 
   static const Color _green = Color(0xFF15B86C);
+
+
+  Uint8List? _webImageBytes;
+
+
+  Future<void> _pickProfileImage() async {
+    try {
+      final XFile? pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+
+      if (pickedFile == null || !mounted) return;
+
+      if (kIsWeb) {
+        final imageBytes = await pickedFile.readAsBytes();
+
+        if (!mounted) return;
+
+        setState(() {
+          _webImageBytes = imageBytes;
+        });
+      } else {
+        final appDirectory = await getApplicationDocumentsDirectory();
+
+        final fileName =
+            'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+        final savedImage = await File(pickedFile.path).copy(
+          '${appDirectory.path}/$fileName',
+        );
+
+        if (!mounted) return;
+
+        await context.read<UserProvider>().updateImage(savedImage.path);
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not select image: $e'),
+        ),
+      );
+    }
+  }
+
 
   Future<void> _logout() async {
     final shouldLogout = await showDialog<bool>(
@@ -97,8 +152,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         : 'One task at a time. One step closer.';
 
     ImageProvider? avatarImage;
-    if (!kIsWeb && user.imagePath != null && user.imagePath!.isNotEmpty) {
+
+    if (kIsWeb && _webImageBytes != null) {
+      avatarImage = MemoryImage(_webImageBytes!);
+    } else if (!kIsWeb &&
+        user.imagePath != null &&
+        user.imagePath!.isNotEmpty) {
       final file = File(user.imagePath!);
+
       if (file.existsSync()) {
         avatarImage = FileImage(file);
       }
@@ -129,95 +190,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 12),
 
               // Avatar with camera badge
-              Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 54,
-                      backgroundColor: _green.withValues(alpha: 0.15),
-                      foregroundImage: avatarImage,
-                      child: avatarImage == null
-                          ? Text(
-                              displayName.isNotEmpty
-                                  ? displayName[0].toUpperCase()
-                                  : 'U',
-                              style: const TextStyle(
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold,
-                                color: _green,
-                              ),
-                            )
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const UserDetailsScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: 34,
-                          height: 34,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: isDark
-                                ? const Color(0xFF2C2C2E)
-                                : Colors.white,
-                            border: Border.all(
-                              color: isDark
-                                  ? const Color(0xFF3A3A3C)
-                                  : const Color(0xFFE5E5EA),
-                              width: 1.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.08),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.camera_alt_outlined,
-                            size: 18,
-                            color: iconColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+
+              ProfileAvatar(
+                image: avatarImage,
+                displayName: displayName,
+                green: _green,
+                iconColor: iconColor,
+                backgroundColor: isDark
+                    ? const Color(0xFF2C2C2E)
+                    : Colors.white,
+                isDark: isDark,
+                onPickImage: _pickProfileImage,
               ),
 
               const SizedBox(height: 16),
 
-              // User Name
-              Text(
-                displayName,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  color: textColor,
-                ),
-              ),
-
-              const SizedBox(height: 6),
-
-              // User Quote / Subtitle
-              Text(
-                displayQuote,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: subTextColor,
-                  height: 1.35,
-                ),
+              ProfileHeader(
+                name: displayName,
+                quote: displayQuote,
+                textColor: textColor,
+                subTextColor: subTextColor,
               ),
 
               const SizedBox(height: 36),
@@ -238,7 +230,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 14),
 
               // 1. User Details
-              _ProfileOptionTile(
+
+              ProfileOptionTile(
                 icon: Icons.person_outline_rounded,
                 iconColor: iconColor,
                 title: 'User Details',
@@ -260,7 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Divider(height: 1, thickness: 1, color: dividerColor),
 
               // 2. Dark Mode
-              _ProfileOptionTile(
+              ProfileOptionTile(
                 icon: Icons.nightlight_round_outlined,
                 iconColor: iconColor,
                 title: 'Dark Mode',
@@ -282,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Divider(height: 1, thickness: 1, color: dividerColor),
 
               // 3. Log Out
-              _ProfileOptionTile(
+              ProfileOptionTile(
                 icon: Icons.logout_rounded,
                 iconColor: iconColor,
                 title: 'Log Out',
@@ -310,48 +303,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-class _ProfileOptionTile extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final Color textColor;
-  final Widget trailing;
-  final VoidCallback? onTap;
-
-  const _ProfileOptionTile({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.textColor,
-    required this.trailing,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 4.0),
-        child: Row(
-          children: [
-            Icon(icon, size: 24, color: iconColor),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: textColor,
-                ),
-              ),
-            ),
-            trailing,
-          ],
-        ),
-      ),
-    );
-  }
-}
