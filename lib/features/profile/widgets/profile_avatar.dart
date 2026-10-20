@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class ProfileAvatar extends StatelessWidget {
@@ -32,15 +31,13 @@ class ProfileAvatar extends StatelessWidget {
             foregroundImage: image,
             child: image == null
                 ? Text(
-              displayName.isNotEmpty
-                  ? displayName[0].toUpperCase()
-                  : 'U',
-              style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-                color: green,
-              ),
-            )
+                    displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U',
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: green,
+                    ),
+                  )
                 : null,
           ),
           Positioned(

@@ -48,8 +48,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 5),
                   const HomeHeader(),
-                  const SizedBox(height: 22),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   AchievedTasksCard(
                     completed: provider.completedTasksCount,
                     total: provider.totalTasksCount,

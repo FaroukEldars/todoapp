@@ -2,26 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../auth/login_screen.dart';
 import '../auth/register_screen.dart';
+import '../shared/theme/app_palette.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark
-        ? const Color(0xFF181818)
-        : const Color(0xFFF8F9FA);
-    final textColor = isDark ? Colors.white : const Color(0xFF1B1B1B);
-    final subTextColor = isDark
-        ? const Color(0xFFCFCFCF)
-        : const Color(0xFF6E7177);
-    final inactiveTextColor = isDark ? Colors.white60 : const Color(0xFF6E7177);
+    final palette = AppPalette.of(context);
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: palette.background,
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: palette.background,
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
@@ -36,7 +29,7 @@ class WelcomeScreen extends StatelessWidget {
             Text(
               'Tasky',
               style: TextStyle(
-                color: textColor,
+                color: palette.text,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -58,7 +51,7 @@ class WelcomeScreen extends StatelessWidget {
                   'Welcome To Tasky 👋',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: textColor,
+                    color: palette.text,
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
                   ),
@@ -67,11 +60,11 @@ class WelcomeScreen extends StatelessWidget {
                 Text(
                   'Your productivity journey starts here',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: subTextColor, fontSize: 16),
+                  style: TextStyle(color: palette.subText, fontSize: 16),
                 ),
                 const SizedBox(height: 28),
                 Image.asset(
-                  isDark ? 'assets/onbDark.png' : 'assets/onb.png',
+                  palette.isDark ? 'assets/onbDark.png' : 'assets/onb.png',
                   width: 280,
                   height: 280,
                   fit: BoxFit.contain,
@@ -79,7 +72,7 @@ class WelcomeScreen extends StatelessWidget {
                 const SizedBox(height: 36),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF15B86C),
+                    backgroundColor: AppPalette.green,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
@@ -103,7 +96,7 @@ class WelcomeScreen extends StatelessWidget {
                   children: [
                     Text(
                       'Already have an account? ',
-                      style: TextStyle(color: inactiveTextColor, fontSize: 14),
+                      style: TextStyle(color: palette.hint, fontSize: 14),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -116,7 +109,7 @@ class WelcomeScreen extends StatelessWidget {
                       child: const Text(
                         'Sign In',
                         style: TextStyle(
-                          color: Color(0xFF15B86C),
+                          color: AppPalette.green,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),

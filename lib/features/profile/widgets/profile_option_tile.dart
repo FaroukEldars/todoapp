@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class ProfileOptionTile extends StatelessWidget {
@@ -25,10 +24,7 @@ class ProfileOptionTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 16,
-          horizontal: 4,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
         child: Row(
           children: [
             Icon(icon, size: 24, color: iconColor),

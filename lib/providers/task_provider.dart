@@ -26,7 +26,9 @@ class TaskProvider extends ChangeNotifier {
   }
 
   List<TaskModel> get highPriorityTasks {
-    return _tasks.where((task) => !task.isCompleted && task.isHighPriority).toList();
+    return _tasks
+        .where((task) => !task.isCompleted && task.isHighPriority)
+        .toList();
   }
 
   int get totalTasksCount => _tasks.length;

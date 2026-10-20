@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -32,11 +31,7 @@ class ProfileHeader extends StatelessWidget {
         Text(
           quote,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            color: subTextColor,
-            height: 1.35,
-          ),
+          style: TextStyle(fontSize: 14, color: subTextColor, height: 1.35),
         ),
       ],
     );

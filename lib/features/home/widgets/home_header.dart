@@ -133,9 +133,7 @@ class _ThemeToggle extends StatelessWidget {
 
     return Material(
       color: p.card,
-      shape: CircleBorder(
-        side: BorderSide(color: p.border ?? p.checkBorder, width: 1),
-      ),
+      shape: CircleBorder(side: BorderSide(color: p.border, width: 1)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         customBorder: const CircleBorder(),

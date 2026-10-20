@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../completed/completed_tasks_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
+import '../shared/theme/app_palette.dart';
 import '../todo/my_tasks_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -15,8 +16,6 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
-  static const Color _green = Color(0xFF15B86C);
-
   final List<Widget> _screens = const [
     HomeScreen(),
     MyTasksScreen(),
@@ -26,23 +25,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF181818) : Colors.white;
-    final inactiveColor =
-        isDark ? const Color(0xFF8E9196) : const Color(0xFF373A3E);
-    final borderColor =
-        isDark ? const Color(0xFF282828) : const Color(0xFFEEEEEE);
+    final palette = AppPalette.of(context);
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: bgColor,
+          color: palette.navBar,
           border: Border(
-            top: BorderSide(color: borderColor, width: 1),
+            top: BorderSide(color: palette.navBarBorder, width: 1),
           ),
         ),
         child: SafeArea(
@@ -57,8 +48,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   activeIcon: Icons.home_outlined,
                   label: 'Home',
                   isSelected: _currentIndex == 0,
-                  activeColor: _green,
-                  inactiveColor: inactiveColor,
+                  activeColor: AppPalette.green,
+                  inactiveColor: palette.navInactive,
                   onTap: () => setState(() => _currentIndex = 0),
                 ),
                 _NavBarItem(
@@ -66,8 +57,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   activeIcon: Icons.assignment_outlined,
                   label: 'To Do',
                   isSelected: _currentIndex == 1,
-                  activeColor: _green,
-                  inactiveColor: inactiveColor,
+                  activeColor: AppPalette.green,
+                  inactiveColor: palette.navInactive,
                   onTap: () => setState(() => _currentIndex = 1),
                 ),
                 _NavBarItem(
@@ -75,8 +66,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   activeIcon: Icons.assignment_turned_in_outlined,
                   label: 'Completed',
                   isSelected: _currentIndex == 2,
-                  activeColor: _green,
-                  inactiveColor: inactiveColor,
+                  activeColor: AppPalette.green,
+                  inactiveColor: palette.navInactive,
                   onTap: () => setState(() => _currentIndex = 2),
                 ),
                 _NavBarItem(
@@ -84,8 +75,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   activeIcon: Icons.person_outline_rounded,
                   label: 'Profile',
                   isSelected: _currentIndex == 3,
-                  activeColor: _green,
-                  inactiveColor: inactiveColor,
+                  activeColor: AppPalette.green,
+                  inactiveColor: palette.navInactive,
                   onTap: () => setState(() => _currentIndex = 3),
                 ),
               ],
@@ -131,11 +122,7 @@ class _NavBarItem extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                isSelected ? activeIcon : icon,
-                size: 26,
-                color: color,
-              ),
+              Icon(isSelected ? activeIcon : icon, size: 26, color: color),
               const SizedBox(height: 4),
               Text(
                 label,

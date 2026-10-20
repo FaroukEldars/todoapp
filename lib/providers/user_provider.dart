@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class UserProvider extends ChangeNotifier {
   String _name = '';
   String _email = '';
@@ -49,15 +48,12 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-
-
   String get name => _name;
   String get email => _email;
   int? get userId => _userId;
   String get quote => _quote;
   String? get imagePath => _imagePath;
   bool get isLoggedIn => _isLoggedIn;
-
 
   Future<void> setUser({
     required String name,
@@ -77,15 +73,11 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
   Future<void> updateName(String name) async {
     _name = name;
     await _saveUserData();
     notifyListeners();
   }
-
-
 
   Future<void> updateQuote(String quote) async {
     _quote = quote;
@@ -93,14 +85,11 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
   Future<void> updateImage(String? imagePath) async {
     _imagePath = imagePath;
     await _saveUserData();
     notifyListeners();
   }
-
 
   Future<void> clearUser() async {
     _name = '';
@@ -120,5 +109,4 @@ class UserProvider extends ChangeNotifier {
 
     notifyListeners();
   }
-
 }

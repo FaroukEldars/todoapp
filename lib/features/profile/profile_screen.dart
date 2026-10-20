@@ -5,7 +5,6 @@ import 'package:path_provider/path_provider.dart';
 import 'widgets/profile_option_tile.dart';
 import 'widgets/profile_avatar.dart';
 import 'widgets/profile_header.dart';
-import 'widgets/profile_info.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -16,6 +15,7 @@ import '../../providers/task_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/user_provider.dart';
 import '../auth/login_screen.dart';
+import '../shared/theme/app_palette.dart';
 import 'user_details_screen.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -30,11 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final AuthService _authService = AuthService();
   bool _isLoggingOut = false;
 
-  static const Color _green = Color(0xFF15B86C);
-
-
   Uint8List? _webImageBytes;
-
 
   Future<void> _pickProfileImage() async {
     try {
@@ -56,12 +52,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       } else {
         final appDirectory = await getApplicationDocumentsDirectory();
 
-        final fileName =
-            'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-        final savedImage = await File(pickedFile.path).copy(
-          '${appDirectory.path}/$fileName',
-        );
+        final savedImage = await File(
+          pickedFile.path,
+        ).copy('${appDirectory.path}/$fileName');
 
         if (!mounted) return;
 
@@ -70,14 +65,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Could not select image: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not select image: $e')));
     }
   }
-
 
   Future<void> _logout() async {
     final shouldLogout = await showDialog<bool>(
@@ -131,20 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<UserProvider>();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final bgColor = isDark ? const Color(0xFF181818) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF1B1B1B);
-    final subTextColor = isDark
-        ? const Color(0xFFA0A0A0)
-        : const Color(0xFF6E7177);
-    final dividerColor = isDark
-        ? const Color(0xFF282828)
-        : const Color(0xFFF0F0F0);
-    final iconColor = isDark ? Colors.white : const Color(0xFF1B1B1B);
-    final arrowColor = isDark
-        ? const Color(0xFFA0A0A0)
-        : const Color(0xFF33373B);
+    final palette = AppPalette.of(context);
 
     final displayName = user.name.isNotEmpty ? user.name : 'Usama Elgendy';
     final displayQuote = user.quote.isNotEmpty
@@ -166,16 +145,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: palette.background,
       appBar: AppBar(
-        backgroundColor: bgColor,
+        backgroundColor: palette.background,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         title: Text(
           'My Profile',
           style: TextStyle(
-            color: textColor,
+            color: palette.text,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -190,16 +169,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 12),
 
               // Avatar with camera badge
-
               ProfileAvatar(
                 image: avatarImage,
                 displayName: displayName,
-                green: _green,
-                iconColor: iconColor,
-                backgroundColor: isDark
+                green: AppPalette.green,
+                iconColor: palette.icon,
+                backgroundColor: palette.isDark
                     ? const Color(0xFF2C2C2E)
                     : Colors.white,
-                isDark: isDark,
+                isDark: palette.isDark,
                 onPickImage: _pickProfileImage,
               ),
 
@@ -208,8 +186,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ProfileHeader(
                 name: displayName,
                 quote: displayQuote,
-                textColor: textColor,
-                subTextColor: subTextColor,
+                textColor: palette.text,
+                subTextColor: palette.subText,
               ),
 
               const SizedBox(height: 36),
@@ -222,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: textColor,
+                    color: palette.text,
                   ),
                 ),
               ),
@@ -230,16 +208,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 14),
 
               // 1. User Details
-
               ProfileOptionTile(
                 icon: Icons.person_outline_rounded,
-                iconColor: iconColor,
+                iconColor: palette.icon,
                 title: 'User Details',
-                textColor: textColor,
+                textColor: palette.text,
                 trailing: Icon(
                   Icons.arrow_forward_rounded,
                   size: 20,
-                  color: arrowColor,
+                  color: palette.arrow,
                 ),
                 onTap: () {
                   Navigator.of(context).push(
@@ -250,36 +227,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
 
-              Divider(height: 1, thickness: 1, color: dividerColor),
+              Divider(height: 1, thickness: 1, color: palette.divider),
 
               // 2. Dark Mode
               ProfileOptionTile(
                 icon: Icons.nightlight_round_outlined,
-                iconColor: iconColor,
+                iconColor: palette.icon,
                 title: 'Dark Mode',
-                textColor: textColor,
+                textColor: palette.text,
                 trailing: Switch(
                   value: context.watch<ThemeProvider>().isDarkMode,
                   onChanged: (val) {
                     context.read<ThemeProvider>().toggleTheme();
                   },
-                  activeTrackColor: _green,
+                  activeTrackColor: AppPalette.green,
                   activeThumbColor: Colors.white,
-                  inactiveTrackColor: isDark
+                  inactiveTrackColor: palette.isDark
                       ? const Color(0xFF3A3A3C)
                       : const Color(0xFFE5E5EA),
                   inactiveThumbColor: Colors.white,
                 ),
               ),
 
-              Divider(height: 1, thickness: 1, color: dividerColor),
+              Divider(height: 1, thickness: 1, color: palette.divider),
 
               // 3. Log Out
               ProfileOptionTile(
                 icon: Icons.logout_rounded,
-                iconColor: iconColor,
+                iconColor: palette.icon,
                 title: 'Log Out',
-                textColor: textColor,
+                textColor: palette.text,
                 trailing: _isLoggingOut
                     ? const SizedBox(
                         width: 18,
@@ -289,7 +266,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     : Icon(
                         Icons.arrow_forward_rounded,
                         size: 20,
-                        color: arrowColor,
+                        color: palette.arrow,
                       ),
                 onTap: _isLoggingOut ? null : _logout,
               ),
@@ -302,4 +279,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../data/models/task_model.dart';
 import '../../../providers/task_provider.dart';
+import '../../shared/widgets/task_delete_dialog.dart';
 import 'home_palette.dart';
 
 enum TaskAction { toggle, delete }
@@ -28,23 +29,7 @@ class TaskTile extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
     final provider = context.read<TaskProvider>();
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete task?'),
-        content: Text('"${task.title}" will be permanently deleted.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
+    final confirmed = await TaskDeleteDialog.show(context, task);
 
     if (confirmed != true) return;
 
@@ -78,10 +63,7 @@ class TaskTile extends StatelessWidget {
       decoration: p.cardDecoration(28),
       child: Row(
         children: [
-          TaskCheckbox(
-            checked: done,
-            onTap: () => _toggleTask(context, task),
-          ),
+          TaskCheckbox(checked: done, onTap: () => _toggleTask(context, task)),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -113,10 +95,7 @@ class TaskTile extends StatelessWidget {
             elevation: 4,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
-              side: BorderSide(
-                color: p.border ?? const Color(0xFF2E2E2E),
-                width: 1,
-              ),
+              side: BorderSide(color: p.border, width: 1),
             ),
             padding: EdgeInsets.zero,
             icon: Icon(Icons.more_vert_rounded, size: 22, color: p.text),

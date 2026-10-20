@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todoapp/data/models/task_model.dart';
-import 'package:todoapp/providers/task_provider.dart';
-import 'package:todoapp/providers/user_provider.dart';
+import '../../data/models/task_model.dart';
+import '../../providers/task_provider.dart';
+import '../../providers/user_provider.dart';
+import '../shared/theme/app_palette.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final String? userId;
@@ -14,8 +15,6 @@ class AddTaskScreen extends StatefulWidget {
 }
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
-  static const Color _green = Color(0xFF16B978);
-
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
@@ -65,29 +64,24 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
-  InputDecoration _decoration(
-    String hint,
-    Color field,
-    Color hintColor,
-    Color borderColor,
-  ) {
+  InputDecoration _decoration(String hint, AppPalette palette) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: hintColor, fontSize: 14),
+      hintStyle: TextStyle(color: palette.hint, fontSize: 14),
       filled: true,
-      fillColor: field,
+      fillColor: palette.inputFill,
       contentPadding: const EdgeInsets.all(16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: borderColor),
+        borderSide: BorderSide(color: palette.inputBorder),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: borderColor),
+        borderSide: BorderSide(color: palette.inputBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: _green, width: 1.5),
+        borderSide: const BorderSide(color: AppPalette.green, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -114,141 +108,134 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg = isDark ? const Color(0xFF181818) : const Color(0xFFF5F6F8);
-    final field = isDark ? const Color(0xFF282828) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF1B1B1B);
-    final hintColor = isDark
-        ? const Color(0xFF6B6B6B)
-        : const Color(0xFF8E9196);
-    final borderColor = isDark
-        ? const Color(0xFF383838)
-        : const Color(0xFFE3E6EA);
+    final palette = AppPalette.of(context);
 
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: palette.background,
       appBar: AppBar(
-        backgroundColor: bg,
-        foregroundColor: textColor,
+        backgroundColor: palette.background,
+        foregroundColor: palette.text,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: textColor),
+          icon: Icon(Icons.arrow_back, color: palette.text),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'New Task',
           style: TextStyle(
-            color: textColor,
+            color: palette.text,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _label('Task Name', textColor),
-                        TextFormField(
-                          controller: _nameController,
-                          style: TextStyle(color: textColor),
-                          textInputAction: TextInputAction.next,
-                          decoration: _decoration(
-                            'Finish UI design for login screen',
-                            field,
-                            hintColor,
-                            borderColor,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.opaque,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _label('Task Name', palette.text),
+                          TextFormField(
+                            controller: _nameController,
+                            style: TextStyle(color: palette.text),
+                            textInputAction: TextInputAction.next,
+                            decoration: _decoration(
+                              'Finish UI design for login screen',
+                              palette,
+                            ),
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Please enter a task name'
+                                : null,
                           ),
-                          validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Please enter a task name'
-                              : null,
-                        ),
-                        const SizedBox(height: 24),
-                        _label('Task Description', textColor),
-                        TextFormField(
-                          controller: _descController,
-                          style: TextStyle(color: textColor),
-                          maxLines: 6,
-                          decoration: _decoration(
-                            'Finish onboarding UI and hand off to devs by Thursday.',
-                            field,
-                            hintColor,
-                            borderColor,
+                          const SizedBox(height: 24),
+                          _label('Task Description', palette.text),
+                          TextFormField(
+                            controller: _descController,
+                            style: TextStyle(color: palette.text),
+                            maxLines: 6,
+                            decoration: _decoration(
+                              'Finish onboarding UI and hand off to devs by Thursday.',
+                              palette,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'High Priority',
-                              style: TextStyle(
-                                color: textColor,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'High Priority',
+                                style: TextStyle(
+                                  color: palette.text,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            Switch(
-                              value: _isHighPriority,
-                              onChanged: (value) {
-                                setState(() => _isHighPriority = value);
-                              },
-                              activeThumbColor: Colors.white,
-                              activeTrackColor: _green,
-                              inactiveThumbColor: Colors.white,
-                              inactiveTrackColor: isDark
-                                  ? const Color(0xFF3A3A3C)
-                                  : const Color(0xFFE5E5EA),
-                            ),
-                          ],
+                              Switch(
+                                value: _isHighPriority,
+                                onChanged: (value) {
+                                  setState(() => _isHighPriority = value);
+                                },
+                                activeThumbColor: Colors.white,
+                                activeTrackColor: AppPalette.green,
+                                inactiveThumbColor: Colors.white,
+                                inactiveTrackColor: palette.isDark
+                                    ? const Color(0xFF3A3A3C)
+                                    : const Color(0xFFE5E5EA),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: _isSaving ? null : _addTask,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppPalette.green,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: AppPalette.green.withValues(
+                          alpha: 0.5,
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: _isSaving ? null : _addTask,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _green,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: _green.withValues(alpha: 0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(26),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(26),
+                        ),
+                        elevation: 0,
                       ),
-                      elevation: 0,
-                    ),
-                    icon: _isSaving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.add, size: 18),
-                    label: const Text(
-                      'Add Task',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      icon: _isSaving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.add, size: 18),
+                      label: const Text(
+                        'Add Task',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

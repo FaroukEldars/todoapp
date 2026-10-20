@@ -5,6 +5,7 @@ import '../../data/services/auth_service.dart';
 import '../../providers/task_provider.dart';
 import '../../providers/user_provider.dart';
 import '../navigation/main_navigation_screen.dart';
+import '../shared/theme/app_palette.dart';
 import 'welcome_screen.dart';
 
 /// Splash Screen that checks auth status and routes accordingly.
@@ -71,21 +72,19 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final palette = AppPalette.of(context);
 
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF181818)
-          : const Color(0xFFF8F9FA),
+      backgroundColor: palette.background,
       body: Stack(
         children: [
-          if (isDark) ...[
+          if (palette.isDark) ...[
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF15B86C).withValues(alpha: 0.35),
+                      AppPalette.green.withValues(alpha: 0.35),
                       Colors.transparent,
                     ],
                     center: Alignment.bottomRight,
@@ -99,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF15B86C).withValues(alpha: 0.35),
+                      AppPalette.green.withValues(alpha: 0.35),
                       Colors.transparent,
                     ],
                     center: Alignment.topLeft,
